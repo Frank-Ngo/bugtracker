@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from models import Bug
 from database import db
+from utils import role_required
+
 
 bug_routes = Blueprint("bugs", __name__)
 
@@ -45,3 +47,13 @@ def update_bug(bug_id):
 
     return jsonify({"message": "Bug updated"})
 
+@bug_routes.route("/api/bugs/<int:bug_id>", methods=["DELETE"])
+@role_required("Admin")
+def delete_bug(bug_id):
+    bug = Bug.query.get(bug_id)
+    if not bug:
+        return jsonify({"error": "Bug not found"}), 404
+
+    db.session.delete(bug)
+    db.session.commit()
+    return jsonify({"message": "Bug deleted"})
