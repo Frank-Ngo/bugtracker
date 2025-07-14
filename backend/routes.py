@@ -25,3 +25,23 @@ def create_bug():
     db.session.add(new_bug)
     db.session.commit()
     return jsonify({"message": "Bug created", "bug_id": new_bug.id}), 201
+
+@bug_routes.route("/api/bugs/<int:bug_id>", methods=["PUT"])
+def update_bug(bug_id):
+    bug = Bug.query.get(bug_id)
+    if not bug:
+        return jsonify({"error": "Bug not found"}), 404
+
+    data = request.json
+
+    if "title" in data:
+        bug.title = data["title"]
+    if "description" in data:
+        bug.description = data["description"]
+    if "status" in data:
+        bug.status = data["status"]
+
+    db.session.commit()
+
+    return jsonify({"message": "Bug updated"})
+
